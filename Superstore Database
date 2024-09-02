@@ -34,16 +34,16 @@ VALUES
 #Order the items by price.
 SELECT item_name, price
 FROM superstore
-ORDER BY price desc;
+ORDER BY price DESC;
 
-#Locate the average price for items.
-SELECT avg(price)
+#Locate the average price for all items.
+SELECT AVG(price)
 FROM superstore;
 
-#Locate the average price for items in the category of "Kitchen Supplies". 
-SELECT avg(price)
+#Locate the average price for items in the category of 'Kitchen Supplies'. 
+SELECT AVG(price)
 FROM superstore
-WHERE category="Kitchen Supplies";
+WHERE category='Kitchen Supplies';
 
 #Retrieve the sum quantity of items for each category.
 SELECT SUM(stock_quantity), category
@@ -53,8 +53,7 @@ GROUP BY category;
 #List items priced above $100.
 SELECT *
 FROM superstore
-WHERE price > 100
-ORDER BY price DESC;
+WHERE price > 100;
 
 #Retrieve all items from the 'Electronics' category.
 SELECT *
@@ -62,6 +61,6 @@ FROM superstore
 WHERE category = 'Electronics';
 
 #Find the item with the highest average rating.
-SELECT *
+SELECT item_name, average_rating
 FROM superstore
 ORDER BY average_rating DESC LIMIT 1;
