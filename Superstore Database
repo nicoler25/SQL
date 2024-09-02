@@ -29,7 +29,7 @@ VALUES
 
 
 
-#For this project, I used SQL to query the Superstore database to get information about items sold at the store. 
+#For this project, I used SQL to query the Superstore database to get information about the items sold at the store. 
 
 #Order the items by price.
 SELECT item_name, price
