@@ -51,7 +51,7 @@ FROM superstore
 GROUP BY category;
 
 #List items priced above $100.
-SELECT *
+SELECT item_name
 FROM superstore
 WHERE price > 100;
 
