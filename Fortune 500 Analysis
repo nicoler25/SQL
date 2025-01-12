@@ -79,7 +79,7 @@ FROM fortune_companies;
 SELECT industry, AVG(paid_time_off_days) AS avg_pto
 FROM fortune_companies
 GROUP BY industry
-HAVING AVG(paid_time_off_days) > 20;
+HAVING avg_pto > 20;
 
 # This query finds the industry with the highest average employee tenure.
 SELECT industry, AVG(avg_employee_tenure) AS avg_tenure
