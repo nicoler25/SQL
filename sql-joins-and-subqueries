@@ -1,0 +1,186 @@
+# SQL Joins & Subqueries – Case Study
+
+## Overview
+This project demonstrates practical SQL querying using a realistic relational dataset.
+It focuses on joins, self-joins, and subqueries to answer business-style questions.
+
+## Skills Demonstrated
+- INNER JOIN and LEFT JOIN
+- SELF JOIN for peer relationships
+- Multi-table joins
+- Subqueries with aggregation
+- Writing readable, well-structured SQL
+
+## Dataset
+The dataset simulates a VIP conference system, including:
+- VIP members and peer feedback relationships
+- Event assignments
+- Hotel reservations
+
+All data is fictional and created for learning purposes.
+
+## Business Questions Answered
+- Which VIPs are providing feedback to other VIPs?
+- Which VIPs have hotel reservations?
+- Which events have above-average attendance?
+- Which VIPs RSVP’d for dinner but not the welcome event?
+
+## Project Structure
+- `schema/` – table creation
+- `data/` – sample data inserts
+- `queries/` – categorized SQL queries
+
+## Related Projects
+- Spotify Top 50 SQL Analysis (PostgreSQL)
+
+
+schema/create_tables.sql
+
+-- Create VIP members table
+CREATE TABLE vips (
+    member_id INTEGER PRIMARY KEY,
+    last_name TEXT,
+    first_name TEXT,
+    event INTEGER,
+    provides_feedback_to INTEGER,
+    association TEXT,
+    assoc_type TEXT,
+    member_since INTEGER
+);
+
+-- Create reservations table
+CREATE TABLE reservations (
+    member_id INTEGER,
+    hotel INTEGER,
+    welcome_rsvp INTEGER,
+    dinner_rsvp INTEGER
+);
+
+-- Create events table
+CREATE TABLE events (
+    event_id INTEGER PRIMARY KEY,
+    event_name TEXT,
+    event_type TEXT
+);
+
+-- Create hotels table
+CREATE TABLE hotels (
+    hotel_id INTEGER PRIMARY KEY,
+    hotel_name TEXT,
+    address TEXT
+);
+
+data/insert_sample_data.sql
+
+-- Sample VIP data
+INSERT INTO vips VALUES
+(2814, 'Fletcher', 'David', 5, 3742, 'Anishinabek Educational Institute', 'education', 2004),
+(1944, 'Kim', 'Jiho', 4, 4230, 'Appalachian State', 'education', 1991),
+(3889, 'Kowalski', 'Alex', 9, 3460, 'Brigg & McKinnnon AEC', 'private', 2015);
+
+-- Sample reservations
+INSERT INTO reservations VALUES
+(2814, 3, 1, 1),
+(1944, 1, 0, 1),
+(3889, 3, 1, 1);
+
+-- Sample events
+INSERT INTO events VALUES
+(4, 'Biodiversity and Ecosystem Services', 'Panel'),
+(5, 'Indigenous Knowledge and Climate Change Adaptation', 'Panel'),
+(9, 'Economic Impact of Climate Change', 'Panel');
+
+-- Sample hotels
+INSERT INTO hotels VALUES
+(1, 'Hyatt Downtown', '392 South Main Street'),
+(3, 'Four Seasons', '900 Winter Road');
+
+-- INNER JOIN example:
+-- List VIPs and the events they are attending
+
+queries/
+
+SELECT
+    v.member_id,
+    v.first_name,
+    v.last_name,
+    e.event_name
+FROM vips v
+INNER JOIN events e
+    ON v.event = e.event_id
+ORDER BY v.member_id;
+
+
+-- LEFT JOIN example:
+-- Show all VIPs, including those without hotel reservations
+
+SELECT
+    v.member_id,
+    v.first_name,
+    v.last_name,
+    r.hotel
+FROM vips v
+LEFT JOIN reservations r
+    ON v.member_id = r.member_id
+ORDER BY v.member_id;
+
+
+-- SELF JOIN example:
+-- Which VIPs are providing feedback to other VIPs?
+
+SELECT
+    reviewers.member_id AS reviewer_id,
+    reviewers.first_name || ' ' || reviewers.last_name AS reviewer,
+    peers.first_name || ' ' || peers.last_name AS being_reviewed
+FROM vips reviewers
+JOIN vips peers
+    ON reviewers.provides_feedback_to = peers.member_id
+ORDER BY reviewer_id;
+
+
+-- Multiple JOINs:
+-- VIPs, their event names, and hotel names
+
+SELECT
+    v.first_name,
+    v.last_name,
+    e.event_name,
+    h.hotel_name
+FROM vips v
+JOIN events e
+    ON v.event = e.event_id
+LEFT JOIN reservations r
+    ON v.member_id = r.member_id
+LEFT JOIN hotels h
+    ON r.hotel = h.hotel_id;
+
+
+-- Subquery + JOIN:
+-- VIPs attending events with more than 1 attendee
+
+SELECT
+    v.first_name,
+    v.last_name,
+    e.event_name
+FROM vips v
+JOIN events e
+    ON v.event = e.event_id
+WHERE v.event IN (
+    SELECT event
+    FROM vips
+    GROUP BY event
+    HAVING COUNT(*) > 1
+);
+
+-- Business question:
+-- Which VIPs RSVP'd for dinner but not the welcome event?
+
+SELECT
+    v.first_name,
+    v.last_name
+FROM vips v
+JOIN reservations r
+    ON v.member_id = r.member_id
+WHERE r.dinner_rsvp = 1
+  AND r.welcome_rsvp = 0;
+
